@@ -79,11 +79,20 @@ object Program {
       if (searchString.equalsIgnoreCase(":quit")) {
         running = false
       } else {
-        index.calculateScore(searchString).foreach {
-          case (fileName, score) =>
-            print(s"${fileName} : ${score}% ")
+        val perFileScore = index.calculateScore(searchString)
+          .toList
+          .filter { case (_, score) => score > 0 }
+          .sortBy { case (_, score) => score }(Ordering.Double.IeeeOrdering.reverse)
+          .take(10)
+        if (perFileScore.isEmpty) {
+          println("no matches found")
+        } else {
+          perFileScore.foreach {
+            case (fileName, score) =>
+              print(s"${fileName} : ${score}% ")
+          }
+          println()
         }
-        println()
       }
     }
   }
