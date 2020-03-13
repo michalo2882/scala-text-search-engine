@@ -2,13 +2,13 @@ package test
 
 import java.io.File
 
-import scala.util.Try
+import scala.util.{Try, Using}
 
 object Program {
 
   import scala.io.StdIn.readLine
 
-  case class Index() // TODO: Implement this
+  case class Index(hashSet: Set[Int])
   sealed trait ReadFileError
 
   case object MissingPathArg extends ReadFileError
@@ -30,8 +30,19 @@ object Program {
     } yield file
   }
 
-  // TODO: Index all files in the directory
-  def index(file: File): Index = ???
+  def index(directory: File): Index = {
+    val wordsRegex = """([A-Za-z])+""".r
+    val hashSet = directory.listFiles
+      .filter(_.isFile)
+      .flatMap(file => {
+        Using(io.Source.fromFile(file)) { source =>
+          source.getLines.flatMap(wordsRegex.findAllIn).toList
+        }.get
+      })
+      .map(word => word.toLowerCase.hashCode)
+      .toSet
+    Index(hashSet)
+  }
 
   def iterate(indexedFiles: Index): Unit = {
     print(s"search> ")
