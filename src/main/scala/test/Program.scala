@@ -12,7 +12,7 @@ object Program {
 
   case class Index(fileToFileIndexMap: Map[String, FileIndex]) {
 
-    def calculateScore(searchString: String): Map[String, Double] = {
+    def calculateScores(searchString: String): Map[String, Double] = {
       val words = wordsRegex
         .findAllIn(searchString)
         .map(_.toLowerCase)
@@ -74,11 +74,11 @@ object Program {
     Index(fileToFileIndexMap)
   }
 
-  def filterScoresForDisplay(scores: List[(String, Double)]): List[(String, Double)] = {
+  def filterScoresForDisplay(scores: List[(String, Double)], take: Int = 10): List[(String, Double)] = {
     scores
       .filter { case (_, score) => score > 0 }
       .sortBy { case (_, score) => score }(Ordering.Double.IeeeOrdering.reverse)
-      .take(10)
+      .take(take)
   }
 
   def runAppLoop(index: Index): Unit = {
@@ -89,7 +89,7 @@ object Program {
       if (searchString.equalsIgnoreCase(":quit")) {
         running = false
       } else {
-        val perFileScore = filterScoresForDisplay(index.calculateScore(searchString).toList)
+        val perFileScore = filterScoresForDisplay(index.calculateScores(searchString).toList)
         if (perFileScore.isEmpty) {
           println("no matches found")
         } else {

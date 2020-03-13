@@ -29,12 +29,22 @@ class ProgramTest extends AnyFunSuite {
       _ => assert(false),
       directory => {
         val index = Program.buildIndex(directory)
-        assert(index.calculateScore("")("sample.txt") == 0.0)
-        assert(index.calculateScore("sewis")("sample.txt") == 100.0)
-        assert(index.calculateScore("sewis blablablaba")("sample.txt") == 50.0)
-        assert(index.calculateScore("sewis sewis sewis sewis blablablaba")("sample.txt") == 50.0)
-        assert(index.calculateScore("   sewis    blablablaba    ")("sample.txt") == 50.0)
+        assert(index.calculateScores("")("sample.txt") == 0.0)
+        assert(index.calculateScores("sewis")("sample.txt") == 100.0)
+        assert(index.calculateScores("sewis blablablaba")("sample.txt") == 50.0)
+        assert(index.calculateScores("sewis sewis sewis sewis blablablaba")("sample.txt") == 50.0)
+        assert(index.calculateScores("   sewis    blablablaba    ")("sample.txt") == 50.0)
       }
     )
+  }
+
+  test("filterScoresForDisplay filters out 0 scores and sorts") {
+    val result = Program.filterScoresForDisplay(List(("A", 0), ("B", 1), ("C", 0), ("D", 2)))
+    assert(result == List(("D", 2), ("B", 1)))
+  }
+
+  test("filterScoresForDisplay takes n-highest scores") {
+    val result = Program.filterScoresForDisplay(List(("A", 0), ("B", 1), ("C", 0), ("D", 2)), take = 1)
+    assert(result == List(("D", 2)))
   }
 }
