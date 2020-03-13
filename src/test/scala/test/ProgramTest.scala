@@ -17,9 +17,9 @@ class ProgramTest extends AnyFunSuite {
       directory => {
         val index = Program.buildIndex(directory)
         assert(index.fileToFileIndexMap.contains("sample.txt"))
-        assert(index.fileToFileIndexMap("sample.txt").hashSet.contains("sewis".hashCode))
-        assert(index.fileToFileIndexMap("sample.txt").hashSet.contains("gentleman".hashCode))
-        assert(!index.fileToFileIndexMap("sample.txt").hashSet.contains("blablablaba".hashCode))
+        assert(index.get("sample.txt").hashSet.contains("sewis".hashCode))
+        assert(index.get("sample.txt").hashSet.contains("gentleman".hashCode))
+        assert(!index.get("sample.txt").hashSet.contains("blablablaba".hashCode))
       }
     )
   }

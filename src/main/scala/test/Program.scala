@@ -31,6 +31,8 @@ object Program {
         (fileName, score)
       }
     }
+
+    def get(fileName: String): FileIndex = fileToFileIndexMap(fileName)
   }
 
   sealed trait ReadFileError
@@ -72,6 +74,13 @@ object Program {
     Index(fileToFileIndexMap)
   }
 
+  def filterScoresForDisplay(scores: List[(String, Double)]): List[(String, Double)] = {
+    scores
+      .filter { case (_, score) => score > 0 }
+      .sortBy { case (_, score) => score }(Ordering.Double.IeeeOrdering.reverse)
+      .take(10)
+  }
+
   def runAppLoop(index: Index): Unit = {
     var running = true;
     while (running) {
@@ -80,11 +89,7 @@ object Program {
       if (searchString.equalsIgnoreCase(":quit")) {
         running = false
       } else {
-        val perFileScore = index.calculateScore(searchString)
-          .toList
-          .filter { case (_, score) => score > 0 }
-          .sortBy { case (_, score) => score }(Ordering.Double.IeeeOrdering.reverse)
-          .take(10)
+        val perFileScore = filterScoresForDisplay(index.calculateScore(searchString).toList)
         if (perFileScore.isEmpty) {
           println("no matches found")
         } else {
