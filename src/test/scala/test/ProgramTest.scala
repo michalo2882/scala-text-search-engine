@@ -4,15 +4,15 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ProgramTest extends AnyFunSuite {
   test("Read existing directory") {
-    assert(Program.readFile(Array(".test-data")).isRight)
+    assert(Program.readDirectory(Array(".test-data")).isRight)
   }
 
   test("Read non-existing directory") {
-    assert(Program.readFile(Array(".not-test-data")).isLeft)
+    assert(Program.readDirectory(Array(".not-test-data")).isLeft)
   }
 
   test("Indexing") {
-    Program.readFile(Array(".test-data")).fold(
+    Program.readDirectory(Array(".test-data")).fold(
       _ => assert(false),
       directory => {
         val index = Program.buildIndex(directory)
@@ -25,7 +25,7 @@ class ProgramTest extends AnyFunSuite {
   }
 
   test("Calculate score") {
-    Program.readFile(Array(".test-data")).fold(
+    Program.readDirectory(Array(".test-data")).fold(
       _ => assert(false),
       directory => {
         val index = Program.buildIndex(directory)

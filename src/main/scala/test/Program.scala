@@ -43,7 +43,7 @@ object Program {
 
   private val wordsRegex = """([A-Za-z])+""".r
 
-  def readFile(args: Array[String]): Either[ReadFileError, File] = {
+  def readDirectory(args: Array[String]): Either[ReadFileError, File] = {
     for {
       path <- args.headOption.toRight(MissingPathArg)
       file <- Try(new java.io.File(path))
@@ -72,7 +72,7 @@ object Program {
     Index(fileToFileIndexMap)
   }
 
-  def iterate(index: Index): Unit = {
+  def runAppLoop(index: Index): Unit = {
     var running = true;
     while (running) {
       print(s"search> ")
