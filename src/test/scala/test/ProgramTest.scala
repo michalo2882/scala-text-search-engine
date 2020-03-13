@@ -22,4 +22,16 @@ class ProgramTest extends AnyFunSuite {
       }
     )
   }
+
+  test("Calculate score") {
+    Program.readFile(Array(".test-data")).fold(
+      _ => assert(false),
+      directory => {
+        val index = Program.index(directory)
+        assert(Program.calculateScore("sewis", index) == 100.0)
+        assert(Program.calculateScore("sewis blablablaba", index) == 50.0)
+        assert(Program.calculateScore("   sewis    blablablaba    ", index) == 50.0)
+      }
+    )
+  }
 }
