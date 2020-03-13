@@ -15,7 +15,7 @@ class ProgramTest extends AnyFunSuite {
     Program.readFile(Array(".test-data")).fold(
       _ => assert(false),
       directory => {
-        val index = Program.index(directory)
+        val index = Program.buildIndex(directory)
         assert(index.fileToFileIndexMap.contains("sample.txt"))
         assert(index.fileToFileIndexMap("sample.txt").hashSet.contains("sewis".hashCode))
         assert(index.fileToFileIndexMap("sample.txt").hashSet.contains("gentleman".hashCode))
@@ -28,7 +28,7 @@ class ProgramTest extends AnyFunSuite {
     Program.readFile(Array(".test-data")).fold(
       _ => assert(false),
       directory => {
-        val index = Program.index(directory)
+        val index = Program.buildIndex(directory)
         assert(index.calculateScore("sewis")("sample.txt") == 100.0)
         assert(index.calculateScore("sewis blablablaba")("sample.txt") == 50.0)
         assert(index.calculateScore("   sewis    blablablaba    ")("sample.txt") == 50.0)

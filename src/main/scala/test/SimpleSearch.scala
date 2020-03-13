@@ -5,6 +5,6 @@ object SimpleSearch extends App {
     .readFile(args)
     .fold(
       println,
-      file => Program.iterate(Program.index(file))
+      file => Program.iterate(Program.buildIndex(file))
     )
 }

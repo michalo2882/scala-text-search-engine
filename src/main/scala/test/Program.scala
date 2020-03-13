@@ -53,7 +53,7 @@ object Program {
     } yield file
   }
 
-  def index(directory: File): Index = {
+  def buildIndex(directory: File): Index = {
     val fileToFileIndexMap = directory.listFiles
       .filter(_.isFile)
       .map(file => {
