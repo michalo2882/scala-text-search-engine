@@ -2,7 +2,7 @@ package test
 
 import java.io.File
 
-import scala.util.{Try, Using}
+import scala.util.{Failure, Success, Try, Using}
 
 object Program {
 
@@ -64,10 +64,12 @@ object Program {
       .map(file => {
         val hashSet = Using(io.Source.fromFile(file)) { source =>
           source.getLines.flatMap(wordsRegex.findAllIn).toList
+        } match {
+          case Success(words) => words.map(word => word.toLowerCase.hashCode).toSet
+          case Failure(exception) =>
+            println(s"Error reading file ${exception}")
+            Set.empty[Int]
         }
-          .get
-          .map(word => word.toLowerCase.hashCode)
-          .toSet
         (file.getName, FileIndex(hashSet))
       })
       .toMap
