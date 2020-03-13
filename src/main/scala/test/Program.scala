@@ -16,16 +16,18 @@ object Program {
       val words = wordsRegex
         .findAllIn(searchString)
         .map(_.toLowerCase)
-        .toArray
+        .toSet
 
       fileToFileIndexMap.map { case (fileName, fileIndex) =>
-        val average = words.map(word => {
+        val score = words.map(word => {
           fileIndex.hashSet.contains(word.hashCode)
         })
           .map(contains => if (contains) 1 else 0)
           .map(x => (x, 1))
-          .reduce((a, b) => (a._1 + b._1, a._2 + b._2))
-        (fileName, 100 * average._1.doubleValue / average._2.doubleValue)
+          .reduceOption((a, b) => (a._1 + b._1, a._2 + b._2))
+          .map(average => 100 * average._1.doubleValue / average._2.doubleValue)
+          .getOrElse(0.0)
+        (fileName, score)
       }
     }
   }
