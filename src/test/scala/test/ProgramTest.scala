@@ -16,9 +16,10 @@ class ProgramTest extends AnyFunSuite {
       _ => assert(false),
       directory => {
         val index = Program.index(directory)
-        assert(index.hashSet.contains("sewis".hashCode))
-        assert(index.hashSet.contains("gentleman".hashCode))
-        assert(!index.hashSet.contains("blablablaba".hashCode))
+        assert(index.fileToFileIndexMap.contains("sample.txt"))
+        assert(index.fileToFileIndexMap("sample.txt").hashSet.contains("sewis".hashCode))
+        assert(index.fileToFileIndexMap("sample.txt").hashSet.contains("gentleman".hashCode))
+        assert(!index.fileToFileIndexMap("sample.txt").hashSet.contains("blablablaba".hashCode))
       }
     )
   }
@@ -28,9 +29,9 @@ class ProgramTest extends AnyFunSuite {
       _ => assert(false),
       directory => {
         val index = Program.index(directory)
-        assert(Program.calculateScore("sewis", index) == 100.0)
-        assert(Program.calculateScore("sewis blablablaba", index) == 50.0)
-        assert(Program.calculateScore("   sewis    blablablaba    ", index) == 50.0)
+        assert(Program.calculateScore("sewis", index)("sample.txt") == 100.0)
+        assert(Program.calculateScore("sewis blablablaba", index)("sample.txt") == 50.0)
+        assert(Program.calculateScore("   sewis    blablablaba    ", index)("sample.txt") == 50.0)
       }
     )
   }

@@ -8,7 +8,9 @@ object Program {
 
   import scala.io.StdIn.readLine
 
-  case class Index(hashSet: Set[Int])
+  case class FileIndex(hashSet: Set[Int])
+
+  case class Index(fileToFileIndexMap: Map[String, FileIndex])
 
   sealed trait ReadFileError
 
@@ -34,29 +36,36 @@ object Program {
   }
 
   def index(directory: File): Index = {
-    val hashSet = directory.listFiles
+    val fileToFileIndexMap = directory.listFiles
       .filter(_.isFile)
-      .flatMap(file => {
-        Using(io.Source.fromFile(file)) { source =>
+      .map(file => {
+        val hashSet = Using(io.Source.fromFile(file)) { source =>
           source.getLines.flatMap(wordsRegex.findAllIn).toList
-        }.get
+        }
+          .get
+          .map(word => word.toLowerCase.hashCode)
+          .toSet
+        (file.getName, FileIndex(hashSet))
       })
-      .map(word => word.toLowerCase.hashCode)
-      .toSet
-    Index(hashSet)
+      .toMap
+    Index(fileToFileIndexMap)
   }
 
-  def calculateScore(searchString: String, indexedFiles: Index): Double = {
-    val average = wordsRegex
+  def calculateScore(searchString: String, indexedFiles: Index): Map[String, Double] = {
+    val words = wordsRegex
       .findAllIn(searchString)
       .map(_.toLowerCase)
-      .map(word => {
-        indexedFiles.hashSet.contains(word.hashCode)
+      .toArray
+
+    indexedFiles.fileToFileIndexMap.map { case (fileName, fileIndex) =>
+      val average = words.map(word => {
+        fileIndex.hashSet.contains(word.hashCode)
       })
-      .map(contains => if (contains) 1 else 0)
-      .map(x => (x, 1))
-      .reduce((a, b) => (a._1 + b._1, a._2 + b._2))
-    100 * average._1.doubleValue / average._2.doubleValue
+        .map(contains => if (contains) 1 else 0)
+        .map(x => (x, 1))
+        .reduce((a, b) => (a._1 + b._1, a._2 + b._2))
+      (fileName, 100 * average._1.doubleValue / average._2.doubleValue)
+    }
   }
 
   def iterate(indexedFiles: Index): Unit = {
@@ -67,8 +76,11 @@ object Program {
       if (searchString.equalsIgnoreCase(":quit")) {
         running = false
       } else {
-        val score = calculateScore(searchString, indexedFiles)
-        println(s"score : ${score}%")
+        calculateScore(searchString, indexedFiles).foreach {
+          case (fileName, score) =>
+            print(s"${fileName} : ${score}% ")
+        }
+        println()
       }
     }
   }
