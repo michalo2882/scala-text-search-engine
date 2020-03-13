@@ -16,7 +16,8 @@ object Program {
       val words = wordsRegex
         .findAllIn(searchString)
         .map(_.toLowerCase)
-        .toSet
+        .toList
+        .distinct
 
       fileToFileIndexMap.map { case (fileName, fileIndex) =>
         val score = words.map(word => {
