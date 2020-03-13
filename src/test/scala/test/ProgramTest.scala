@@ -29,9 +29,9 @@ class ProgramTest extends AnyFunSuite {
       _ => assert(false),
       directory => {
         val index = Program.index(directory)
-        assert(Program.calculateScore("sewis", index)("sample.txt") == 100.0)
-        assert(Program.calculateScore("sewis blablablaba", index)("sample.txt") == 50.0)
-        assert(Program.calculateScore("   sewis    blablablaba    ", index)("sample.txt") == 50.0)
+        assert(index.calculateScore("sewis")("sample.txt") == 100.0)
+        assert(index.calculateScore("sewis blablablaba")("sample.txt") == 50.0)
+        assert(index.calculateScore("   sewis    blablablaba    ")("sample.txt") == 50.0)
       }
     )
   }

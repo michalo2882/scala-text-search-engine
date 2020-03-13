@@ -10,7 +10,25 @@ object Program {
 
   case class FileIndex(hashSet: Set[Int])
 
-  case class Index(fileToFileIndexMap: Map[String, FileIndex])
+  case class Index(fileToFileIndexMap: Map[String, FileIndex]) {
+
+    def calculateScore(searchString: String): Map[String, Double] = {
+      val words = wordsRegex
+        .findAllIn(searchString)
+        .map(_.toLowerCase)
+        .toArray
+
+      fileToFileIndexMap.map { case (fileName, fileIndex) =>
+        val average = words.map(word => {
+          fileIndex.hashSet.contains(word.hashCode)
+        })
+          .map(contains => if (contains) 1 else 0)
+          .map(x => (x, 1))
+          .reduce((a, b) => (a._1 + b._1, a._2 + b._2))
+        (fileName, 100 * average._1.doubleValue / average._2.doubleValue)
+      }
+    }
+  }
 
   sealed trait ReadFileError
 
@@ -51,24 +69,7 @@ object Program {
     Index(fileToFileIndexMap)
   }
 
-  def calculateScore(searchString: String, indexedFiles: Index): Map[String, Double] = {
-    val words = wordsRegex
-      .findAllIn(searchString)
-      .map(_.toLowerCase)
-      .toArray
-
-    indexedFiles.fileToFileIndexMap.map { case (fileName, fileIndex) =>
-      val average = words.map(word => {
-        fileIndex.hashSet.contains(word.hashCode)
-      })
-        .map(contains => if (contains) 1 else 0)
-        .map(x => (x, 1))
-        .reduce((a, b) => (a._1 + b._1, a._2 + b._2))
-      (fileName, 100 * average._1.doubleValue / average._2.doubleValue)
-    }
-  }
-
-  def iterate(indexedFiles: Index): Unit = {
+  def iterate(index: Index): Unit = {
     var running = true;
     while (running) {
       print(s"search> ")
@@ -76,7 +77,7 @@ object Program {
       if (searchString.equalsIgnoreCase(":quit")) {
         running = false
       } else {
-        calculateScore(searchString, indexedFiles).foreach {
+        index.calculateScore(searchString).foreach {
           case (fileName, score) =>
             print(s"${fileName} : ${score}% ")
         }
